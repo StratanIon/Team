@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class Car_play : MonoBehaviour {
 
@@ -15,6 +16,13 @@ public class Car_play : MonoBehaviour {
      private float gravity = 9.8f;
      private float angleCar = 0f;
 
+     public bool grounded = false;
+     public LayerMask map;
+     public Transform bwheel;
+
+    public Text coinsText;
+    private int coinsInt = 0;
+
      public ClickScript[] ControlCar;
 	// Use this for initialization
 	void Start () {
@@ -26,6 +34,14 @@ public class Car_play : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
+
+    void Update ()
+    {
+        grounded = Physics2D.OverlapCircle(bwheel.transform.position, 0.25f, map);
+
+        coinsText.text = coinsInt.ToString();
+    }
+
 	void FixedUpdate () {
           frontwheel.motorSpeed = backwheel.motorSpeed;
 
@@ -35,21 +51,33 @@ public class Car_play : MonoBehaviour {
           {
                angleCar = angleCar - 360;
           }
+        if (grounded == true)
+        {
 
-          if(ControlCar[0].clickedIs == true)
-          {
-               backwheel.motorSpeed = Mathf.Clamp(backwheel.motorSpeed - (acceleration - gravity * Mathf.PI * (angleCar / 180) * 80) * Time.deltaTime, maxSpeed, maxBackSpeed);
-          }
+            if (ControlCar[0].clickedIs == true)
+            {
+                backwheel.motorSpeed = Mathf.Clamp(backwheel.motorSpeed - (acceleration - gravity * Mathf.PI * (angleCar / 180) * 80) * Time.deltaTime, maxSpeed, maxBackSpeed);
+            }
 
-          if (ControlCar[0].clickedIs == false && backwheel.motorSpeed < 0 || (ControlCar[0].clickedIs == false && backwheel.motorSpeed == 0 && angleCar < 0))
-          {
-               backwheel.motorSpeed = Mathf.Clamp(backwheel.motorSpeed - (deacceleration - gravity * Mathf.PI * (angleCar / 180) * 80) * Time.deltaTime, maxSpeed, 0);
-          }
+           else if ((backwheel.motorSpeed < 0) || ControlCar[0].clickedIs == false && backwheel.motorSpeed < 0 || (ControlCar[0].clickedIs == false && backwheel.motorSpeed == 0 && angleCar < 0))
+            {
+                backwheel.motorSpeed = Mathf.Clamp(backwheel.motorSpeed - (deacceleration - gravity * Mathf.PI * (angleCar / 180) * 80) * Time.deltaTime, maxSpeed, 0);
+            }
 
-          else if ((ControlCar[0].clickedIs == false && backwheel.motorSpeed > 0)|| (ControlCar[0].clickedIs == false && backwheel.motorSpeed == 0 && angleCar > 0))
-          {
-               backwheel.motorSpeed = Mathf.Clamp(backwheel.motorSpeed - (- deacceleration - gravity * Mathf.PI * (angleCar / 180) * 80) * Time.deltaTime, 0, maxSpeed);
-          }
+             if ((ControlCar[0].clickedIs == false && backwheel.motorSpeed > 0) || (ControlCar[0].clickedIs == false && backwheel.motorSpeed == 0 && angleCar > 0))
+            {
+                backwheel.motorSpeed = Mathf.Clamp(backwheel.motorSpeed - (-deacceleration - gravity * Mathf.PI * (angleCar / 180) * 80) * Time.deltaTime, 0, maxSpeed);
+            }
+        }
+
+        else if (ControlCar[0].clickedIs == false && backwheel.motorSpeed < 0)
+        {
+            backwheel.motorSpeed = Mathf.Clamp(backwheel.motorSpeed + deacceleration * Time.deltaTime, maxSpeed, 0);
+        }
+        else if (ControlCar[0].clickedIs == false && backwheel.motorSpeed > 0)
+        {
+            backwheel.motorSpeed = Mathf.Clamp(backwheel.motorSpeed - deacceleration * Time.deltaTime, 0, maxBackSpeed);
+        }
 
           if(ControlCar[1].clickedIs == true && backwheel.motorSpeed > 0)
           {
@@ -66,5 +94,13 @@ public class Car_play : MonoBehaviour {
           wheeljoint[0].motor = frontwheel;
 
      }
+
+    void OnTriggerEnter2D (Collider2D coins)
+    {
+        Destroy(coins.gameObject);
+        coinsInt++;
+    }
+    
+
 	}
 
