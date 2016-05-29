@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class Car_play : MonoBehaviour {
 
@@ -95,10 +96,17 @@ public class Car_play : MonoBehaviour {
 
      }
 
-    void OnTriggerEnter2D (Collider2D coins)
+    void OnTriggerEnter2D (Collider2D trigger)
     {
-        Destroy(coins.gameObject);
-        coinsInt++;
+        if(trigger.gameObject.tag == "coins")
+        {
+            Destroy(trigger.gameObject);
+            coinsInt++;
+        }
+        else if (trigger.gameObject.tag == "Finish")
+        {
+            SceneManager.LoadScene(0);
+        }
     }
     
 
